@@ -12,6 +12,40 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
   let mentors = [] // fix this
   let learners = [] // fix this
 
+
+  try {
+    const mentorsResponse = await axios.get('http://localhost:3003/api/mentors');
+    mentors = mentorsResponse.data;
+
+    console.log('Updated mentors data:', mentors);
+  } catch (error) {
+    console.log('Error fetching mentors data:', error);
+  }
+
+  try {
+    const learnersResponse = await axios.get('http://localhost:3003/api/learners');
+    learners = learnersResponse.data;
+
+    const mentorList = {};
+    mentors.forEach(mentor => {
+      mentorList[mentor.id] = `${mentor.firstName} ${mentor.lastName}`;
+    });
+
+    learners = learners.map(learner => {
+      return {
+        id: learner.id,
+        fullName: learner.fullName,
+        email: learner.email,
+        mentors: learner.mentors.map(mentorId => {
+          return mentorList[mentorId] || mentorId;
+        })
+      };
+    });
+
+    console.log('Updated learners data:', learners);
+  } catch (error) {
+    console.log('Error fetching learners data:', error);
+  }
   // 👆 ==================== TASK 1 END ====================== 👆
 
   // 👇 ==================== TASK 2 START ==================== 👇
@@ -38,6 +72,7 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
 
   // 👇 ==================== TASK 3 START ==================== 👇
 
+
   for (let learner of learners) { // looping over each learner object
 
     // 🧠 Flesh out the elements that describe each learner
@@ -48,10 +83,30 @@ async function sprintChallenge5() { // Note the async keyword so you can use `aw
     // ❗ Inspect the mock site closely to understand what the initial texts and classes look like!
 
     const card = document.createElement('div')
+    card.classList.add('card')
+    cardsContainer.appendChild(card)
+
     const heading = document.createElement('h3')
+    heading.textContent = `${learner.fullName}, ID ${learner.id}`
+    card.appendChild(heading)
+
     const email = document.createElement('div')
+    email.textContent = learner.email
+    card.appendChild(email)
+
     const mentorsHeading = document.createElement('h4')
+    mentorsHeading.classList.add('closed')
+    mentorsHeading.textContent = 'Mentors'
+    card.appendChild(mentorsHeading)
+
     const mentorsList = document.createElement('ul')
+    card.appendChild(mentorsList)
+    learner.mentors.forEach(mentor => {
+      let mentorLi = document.createElement('li')
+      mentorLi.textContent = mentor
+      mentorsList.appendChild(mentorLi)
+    })
+
 
     // 👆 ==================== TASK 3 END ====================== 👆
 
